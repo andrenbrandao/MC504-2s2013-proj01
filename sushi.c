@@ -13,6 +13,8 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 #define NO_OF_CUSTOMERS 8
+#define TEMPO 50000
+#define TAM_MESA 45
 
 pthread_t customers[NO_OF_CUSTOMERS];
 
@@ -29,128 +31,175 @@ estado_t estado[NO_OF_CUSTOMERS];
 sem_t sem_ref;
 
 void exibe_mesa() {
-  int i;
-       
-// system("clear");
-printf("\t        漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字          漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         \n");                                            
-printf("\t |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|\n");             
-printf("\t |        "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"           |\n");   
-printf("\t |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");
-printf("\t |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");   
-printf("\t |        "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"           |\n");   
-printf("\t |_____________________________________________|\n");          
+	int i;
 
-  for (i = 0; i < NO_OF_CUSTOMERS; i++)
-    switch (estado[i]) {
-    /* case W:  printf("W ");
-      break; */
-    case S:  printf(ANSI_COLOR_YELLOW "S " ANSI_COLOR_RESET);
-      break;
-    case E:  printf(ANSI_COLOR_CYAN "E " ANSI_COLOR_RESET);
-      break;
-    }
-  printf("\n");
- 
+	// system("clear");
+	printf("\n\n");
+	printf("\t        漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字          漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         \n");                                            
+	printf("\t |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|\n");             
+	printf("\t |        "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"           |\n");   
+	printf("\t |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");
+	printf("\t |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");   
+	printf("\t |        "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"           |\n");   
+	printf("\t |_____________________________________________|\n");          
+
+
+  // for (i = 0; i < NO_OF_CUSTOMERS; i++)
+  //   switch (estado[i]) {
+  //   /* case W:  printf("W ");
+  //     break; */
+  //   case S:  printf(ANSI_COLOR_YELLOW "S " ANSI_COLOR_RESET);
+  //     break;
+  //   case E:  printf(ANSI_COLOR_CYAN "E " ANSI_COLOR_RESET);
+  //     break;
+  //   }
+  // printf("\n");
+}
+
+void entra_sushibar(int client_id) {
+	int i, j;
+	int n_espacos;       
+
+	if(eating == 1) {
+		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
+		for(i=0; i<60; i++) {
+			usleep(TEMPO);
+			exibe_mesa(); 
+
+			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
+			for(j=i; j<70; j++) {
+				printf(" ");
+			}
+
+			printf("X\n");
+		}
+	}
+	else {
+		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
+		for(i=0; i<(60-eating*3); i++) {
+			usleep(TEMPO);
+			exibe_mesa(); 
+
+			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
+			for(j=i; j<70; j++) {
+				printf(" ");
+			}
+
+			printf("X\n");
+		}
+	}
+
+  // for (i = 0; i < NO_OF_CUSTOMERS; i++)
+  //   switch (estado[i]) {
+  //   /* case W:  printf("W ");
+  //     break; */
+  //   case S:  printf(ANSI_COLOR_YELLOW "S " ANSI_COLOR_RESET);
+  //     break;
+  //   case E:  printf(ANSI_COLOR_CYAN "E " ANSI_COLOR_RESET);
+  //     break;
+  //   }
+  // printf("\n");
+
 }
 
 void* sushi_bar(void* arg) { 
-  int client_id = *(int *) arg;
-  
-  while(1){
+	int client_id = *(int *) arg;
 
-	int i,n;
+	while(1){
 
-	pthread_mutex_lock(&mutex);
+		int i,n;
 
-	if(must_wait) { 
-		waiting+=1;
-		
+		pthread_mutex_lock(&mutex);
+
+		if(must_wait) { 
+			waiting+=1;
+
 		/* CLIENTE ESPERANDO */
-		printf("waiting customer...%d\n", client_id);
-		estado[client_id] = W;
-		exibe_mesa();
+		// printf("waiting customer...%d\n", client_id);
+			estado[client_id] = W;
+			exibe_mesa();
 
 		/* MUTEX LIBERADO */
-		pthread_mutex_unlock(&mutex);
-		
-		sem_wait(&block);
-		waiting -= 1;
-	} 
-	eating+=1;
-	must_wait = (eating == no_of_chairs);
-	
-	estado[client_id] = S;
-	printf("-----Sitting customer...%d\n", client_id);
-	exibe_mesa();
-	
-	if(eating == no_of_chairs) {
-	  printf("TABLE FULL WITH CUSTOMERS...\n");
-	}
+			pthread_mutex_unlock(&mutex);
 
-	estado[client_id] = E;
-	exibe_mesa();
-	
+			sem_wait(&block);
+			waiting -= 1;
+		} 
+		eating+=1;
+		must_wait = (eating == no_of_chairs);
+
+		estado[client_id] = S;
+	// printf("-----Sitting customer...%d\n", client_id);
+		entra_sushibar(client_id);
+
+		if(eating == no_of_chairs) {
+			printf("TABLE FULL WITH CUSTOMERS...\n");
+		}
+
+		estado[client_id] = E;
+		// exibe_mesa();
+
 	/* MUTEX LIBERADO */
-	if(waiting && !must_wait) 
-	  sem_post(&block);
-	else
-	  pthread_mutex_unlock(&mutex);
+		if(waiting && !must_wait) 
+			sem_post(&block);
+		else
+			pthread_mutex_unlock(&mutex);
 
-	printf("Eating customer...%d\n", client_id);
-	sleep(3);
+	// printf("Eating customer...%d\n", client_id);
+		sleep(3);
 
-	pthread_mutex_lock(&mutex);
-	eating-=1;
-	estado[client_id] = L;
+		pthread_mutex_lock(&mutex);
+		eating-=1;
+		estado[client_id] = L;
 	/* CLIENTE SAINDO */
-	printf("Leaving customer...%d\n", client_id);
-	exibe_mesa();
+	// printf("Leaving customer...%d\n", client_id);
+		exibe_mesa();
 
-	if(eating == 0)
-	  must_wait = 0;
-	
-	if(waiting && !must_wait)
-	  sem_post(&block);
-	else
-	 pthread_mutex_unlock(&mutex);
+		if(eating == 0)
+			must_wait = 0;
 
-	sleep(3);
-  } 
+		if(waiting && !must_wait)
+			sem_post(&block);
+		else
+			pthread_mutex_unlock(&mutex);
+
+		sleep(3);
+	} 
 } 
 
 void main() { 
 
-  int i=0;
-  
-  char c;
+	int i=0;
 
-  int customer_id[NO_OF_CUSTOMERS];
-  
-  printf("Insira o numero de cadeiras do Sushi Bar: ");
-  scanf(" %d", &no_of_chairs);
+	char c;
+
+	int customer_id[NO_OF_CUSTOMERS];
+
+	printf("Insira o numero de cadeiras do Sushi Bar: ");
+	scanf(" %d", &no_of_chairs);
 
 
-  for(i=0;i<NO_OF_CUSTOMERS;i++) {
-	  customer_id[i]=i;
-	  estado[i] = W;
+	for(i=0;i<NO_OF_CUSTOMERS;i++) {
+		customer_id[i]=i;
+		estado[i] = W;
 	}
 
   //mutex=make_semaphore(1);
-  pthread_mutex_init(&mutex,0);
+	pthread_mutex_init(&mutex,0);
 
   //block=make_semaphore(0);
-  sem_init(&block,0,0);
+	sem_init(&block,0,0);
 
-  sem_init(&sem_ref, 0, 1);
+	sem_init(&sem_ref, 0, 1);
 
-  for(i=0;i<NO_OF_CUSTOMERS;i++)
-	  pthread_create(&customers[i],0,sushi_bar,&customer_id[i]);
-  
+	for(i=0;i<NO_OF_CUSTOMERS;i++)
+		pthread_create(&customers[i],0,sushi_bar,&customer_id[i]);
+
   /* use system call to make terminal send all keystrokes directly to stdin */
 //   system ("/bin/stty raw");
-  while(c != 'q') {
-	c = getchar();
-  };
+	while(c != 'q') {
+		c = getchar();
+	};
   /* use system call to set terminal behaviour to more normal behaviour */
 //   system ("/bin/stty cooked");
 } 
