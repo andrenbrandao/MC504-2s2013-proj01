@@ -39,21 +39,30 @@ sem_t sem_ref;
 int posicao[NO_OF_CUSTOMERS];
 
 void todos_saem_sushibar(int client_id) {
-	int i, j, encontrado=0;
+	int i, j, k, p, encontrado=0;
 
-	printf("          ");
-	for(i=1; i<=45; i++){
+	for(k=0; k < (leaving*(n_espacos+1) + 9); k++) {
+		usleep(TEMPO);
 		exibe_mesa(client_id);
-		for(j=0; j<NO_OF_CUSTOMERS; j++) {
-			if((posicao[j]-10) == i) {
-				printf("A %d", posicao[j]);
-				encontrado = 1;
-			}
+
+		for(p=k; p<10; p++)
+			printf(" ");
+
+		for(i=1; i<=TAM_MESA; i++){
+			for(j=0; j<NO_OF_CUSTOMERS; j++) {
+				if((posicao[j]-10) == i) {
+					printf("S");
+					encontrado = 1;
+					 if(k>=10)
+						posicao[j]--; 	/* decrementa a posicao do cliente */
+				}
 		}
 		if(!encontrado)
-			printf(" OI");
+			printf(" ");
 		encontrado=0;
 	}
+	printf("\n");
+}
 }
 
 void remove_cliente(int client_id) {
@@ -74,9 +83,7 @@ void remove_cliente(int client_id) {
 		if(leaving == no_of_chairs) {
 			all_leaving = 1;
 			todos_saem_sushibar(client_id);
-			for(i=0; i<NO_OF_CUSTOMERS; i++) {
-				posicao[i] = 0;
-			}
+			zera_posicoes();
 		}
 	}
 }
@@ -230,7 +237,6 @@ void entra_sushibar(int client_id) {
 
 void* sushi_bar(void* arg) { 
 	int client_id = *(int *) arg;
-	leaving = 0;
 
 	while(1){
 		int i,n;
