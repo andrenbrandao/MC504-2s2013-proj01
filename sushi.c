@@ -32,7 +32,8 @@ pthread_mutex_t mutex;
 int must_wait = 0;
 
 /* exibição de estados dos clientes */
-typedef enum {W, S, E, L} estado_t;
+/* Waiting, Sitting, Eating, Leaving, Out */
+typedef enum {W, S, E, L, O} estado_t;
 estado_t estado[NO_OF_CUSTOMERS];
 sem_t sem_ref;
 
@@ -75,14 +76,18 @@ void remove_cliente(int client_id) {
 
 	if(n_clientes != no_of_chairs) {
 		for(i=0; i<NO_OF_CUSTOMERS; i++) {
-			if(estado[i] == L)
+			if(estado[i] == L) {
 				posicao[i] = 0;
+				leaving--;
+			}
 		}
 	}
 	else {
 		if(leaving == no_of_chairs) {
 			all_leaving = 1;
 			todos_saem_sushibar(client_id);
+			all_leaving = 0;
+			leaving = 0;
 			zera_posicoes();
 		}
 	}
@@ -280,7 +285,7 @@ void* sushi_bar(void* arg) {
 		pthread_mutex_lock(&mutex);
 		eating-=1;
 		estado[client_id] = L;
-		// exibe_mesa(client_id);
+
 	/* CLIENTE SAINDO */
 		printf("Leaving customer...%d\n", client_id);
 		exibe_mesa(client_id);
@@ -290,10 +295,12 @@ void* sushi_bar(void* arg) {
 		if(eating == 0)
 			must_wait = 0;
 
+		estado[client_id] = O;
 		if(waiting && !must_wait)
 			sem_post(&block);
 		else
 			pthread_mutex_unlock(&mutex);
+
 
 		sleep(3);
 	} 
