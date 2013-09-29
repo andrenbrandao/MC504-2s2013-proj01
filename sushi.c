@@ -12,14 +12,14 @@
 #define ANSI_COLOR_CYAN    "\033[22;36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-#define NO_OF_CUSTOMERS 8
+#define NO_OF_CUSTOMERS 30
 #define TEMPO 50000
 #define TAM_MESA 45
 
 pthread_t customers[NO_OF_CUSTOMERS];
 
 int eating = 0, waiting = 0;
-int no_of_chairs, no_of_customers;
+int no_of_chairs, no_of_customers, n_espacos;
 
 sem_t block;
 pthread_mutex_t mutex;
@@ -57,12 +57,13 @@ void exibe_mesa() {
 }
 
 void entra_sushibar(int client_id) {
-	int i, j;
-	int n_espacos;       
+	int i, j, k;      
+
+	printf("\t");
 
 	if(eating == 1) {
 		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
-		for(i=0; i<60; i++) {
+		for(i=0; i<60-n_espacos; i++) {
 			usleep(TEMPO);
 			exibe_mesa(); 
 
@@ -76,29 +77,30 @@ void entra_sushibar(int client_id) {
 	}
 	else {
 		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
-		for(i=0; i<(60-eating*3); i++) {
+		for(i=0; i<(60-eating*n_espacos); i++) {
 			usleep(TEMPO);
 			exibe_mesa(); 
 
+			/* posicao inicial do primeiro */
+			for(j=60-n_espacos; j<70; j++) {
+				printf(" ");
+			}
+			printf("X");
+
+			for(j=2; j<eating; j++) {
+				for(k=0; k<n_espacos; k++) {
+					printf(" ");
+				}
+				printf("X");
+			}
 			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
-			for(j=i; j<70; j++) {
+			for(j=i; j<70-eating*n_espacos; j++) {
 				printf(" ");
 			}
 
 			printf("X\n");
 		}
 	}
-
-  // for (i = 0; i < NO_OF_CUSTOMERS; i++)
-  //   switch (estado[i]) {
-  //   /* case W:  printf("W ");
-  //     break; */
-  //   case S:  printf(ANSI_COLOR_YELLOW "S " ANSI_COLOR_RESET);
-  //     break;
-  //   case E:  printf(ANSI_COLOR_CYAN "E " ANSI_COLOR_RESET);
-  //     break;
-  //   }
-  // printf("\n");
 
 }
 
@@ -168,16 +170,14 @@ void* sushi_bar(void* arg) {
 } 
 
 void main() { 
-
 	int i=0;
-
 	char c;
-
 	int customer_id[NO_OF_CUSTOMERS];
 
 	printf("Insira o numero de cadeiras do Sushi Bar: ");
 	scanf(" %d", &no_of_chairs);
 
+	n_espacos = TAM_MESA/(no_of_chairs+1); 
 
 	for(i=0;i<NO_OF_CUSTOMERS;i++) {
 		customer_id[i]=i;
