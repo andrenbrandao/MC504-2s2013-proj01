@@ -30,29 +30,15 @@ sem_t image_block;
 
 void exibe_mesa() {
   int i;
-                                        
-printf("\t            .MMMMMMMMMMMMM.\n");             
-printf("\t          MMMMMMMMMMMMMMMMMMM.\n");            
-printf("\t      ..MMMMMD           DMMMMM.\n");          
-printf("\t      MMMMM..              .MMMMD\n");         
-printf("\t     NMMM                     MMMM\n");        
-printf("\t    MMMM                      .NMMM\n");       
-printf("\t   OMMM                         MMM8\n");      
-printf("\t  .MMM                           MMM\n");      
-printf("\t  NMMD                           DMMN\n");     
-printf("\t  MMM.                            MMM\n");     
-printf("\t  MMM.                            MMM\n");     
-printf("\t  MMM                             MMM\n");     
-printf("\t  MMM.                            MMM\n");     
-printf("\t  DMMD                           DMMD\n");     
-printf("\t   MMM                           MMM.\n");     
-printf("\t   MMMM                        .MMMN\n");      
-printf("\t    MMMM.                     .MMMM\n");       
-printf("\t     MMMM                     MMMM\n");        
-printf("\t      NMMMM                .MMMMD\n");         
-printf("\t       .MMMMM:           :MMMMM.\n");          
-printf("\t         .MMMMMMMMMMMMMMMMMNM\n");             
-printf("\t            .MMMMMMMMMMMMM.\n");               
+       
+        system("clear");
+printf("\t        漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字          漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         \n");                                            
+printf("\t |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|\n");             
+printf("\t |        "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"           |\n");   
+printf("\t |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");
+printf("\t |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");   
+printf("\t |        "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"           |\n");   
+printf("\t |_____________________________________________|\n");          
 
   for (i = 0; i < NO_OF_CUSTOMERS; i++)
     switch (estado[i]) {
