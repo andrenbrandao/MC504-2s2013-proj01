@@ -153,6 +153,4 @@ void main() {
   };
   /* use system call to set terminal behaviour to more normal behaviour */
 //   system ("/bin/stty cooked");
-
-
 } 
