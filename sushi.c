@@ -32,6 +32,15 @@ sem_t sem_ref;
 
 int posicao[NO_OF_CUSTOMERS];
 
+void remove_cliente() {
+	int i;
+
+	for(i=0; i<NO_OF_CUSTOMERS; i++) {
+		if(estado[i] == L)
+			posicao[i] = 0;
+	}
+}
+
 void zera_posicoes() {
 	int i;
 
@@ -41,13 +50,25 @@ void zera_posicoes() {
 }
 
 void exibe_mesa(int client_id) {
-	int i, j, encontrado = 0, sentando = 0;
+	int i, j, encontrado = 0, sentando = 0, comendo = 0, saindo = 0;
 	// system("clear");
 	printf("\n\n");
 	printf("                漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字          漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         \n");                                            
 	printf("         |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|\n");             
 	printf("         |        "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"           |\n");   
-	printf("         |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");
+	printf("         |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |");
+
+	for(j=0; j<NO_OF_CUSTOMERS; j++) {
+		if(estado[j]==E)
+			comendo += 1;
+	}
+
+	if(comendo == no_of_chairs) {
+		printf("     :: MESA CHEIA ::\n");
+	}
+	else
+		printf("\n");
+
 	printf("         |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");   
 	printf("         |        "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"           |\n");   
 	printf("         |");
@@ -72,8 +93,14 @@ void exibe_mesa(int client_id) {
 			sentando = 1;
 	}
 
+	/* checa se alguem esta saindo */
+	for(j=0; j<NO_OF_CUSTOMERS; j++) {
+		if(estado[j]==L)
+			saindo = 1;
+	}
 
-	if(!sentando) {
+
+	if(!sentando && !saindo) {
 		printf("          ");
 		for(i=1; i<=45; i++){
 			for(j=0; j<NO_OF_CUSTOMERS; j++) {
@@ -89,9 +116,62 @@ void exibe_mesa(int client_id) {
 		printf("\n");
 	}
 
+	if(comendo == no_of_chairs) {
+		usleep(30000);
+	}
+
 }
 
 void entra_sushibar(int client_id) {
+	int i, j, k;      
+
+	if(eating == 1) {
+		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
+		for(i=0; i<61-n_espacos; i++) {
+			usleep(TEMPO);
+			exibe_mesa(client_id); 
+
+			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
+			for(j=i; j<70; j++) {
+				printf(" ");
+			}
+
+			printf("C\n");
+		}
+		posicao[client_id] = j-i+1;
+		// printf("Posicao: %d\n", posicao[client_id]);
+	}
+	else {
+		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
+		for(i=0; i<(71-n_espacos*eating-n_espacos); i++) {
+			usleep(TEMPO);
+			exibe_mesa(client_id); 
+
+			/* posicao inicial do primeiro */
+			for(j=(61-n_espacos); j<70; j++) {
+				printf(" ");
+			}
+			printf("C");
+
+			for(j=2; j<eating; j++) {
+				for(k=0; k<n_espacos; k++) {
+					printf(" ");
+				}
+				printf("C");
+			}
+			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
+			for(j=i; j<(70-eating*n_espacos); j++) {
+				printf(" ");
+			}
+
+			printf("C\n");
+		}
+		posicao[client_id] = eating*(n_espacos+1) + 9;
+		// printf("Posicao: %d\n", posicao[client_id]);
+	}
+}
+
+void sai_sushibar(int client_id) {
 	int i, j, k;      
 
 	if(eating == 1) {
@@ -170,10 +250,6 @@ void* sushi_bar(void* arg) {
 	// printf("-----Sitting customer...%d\n", client_id);
 		entra_sushibar(client_id);
 
-		if(eating == no_of_chairs) {
-			printf("TABLE FULL WITH CUSTOMERS...\n");
-		}
-
 		estado[client_id] = E;
 		exibe_mesa(client_id);
 
@@ -190,9 +266,10 @@ void* sushi_bar(void* arg) {
 		pthread_mutex_lock(&mutex);
 		eating-=1;
 		estado[client_id] = L;
+		// exibe_mesa(client_id);
 	/* CLIENTE SAINDO */
-		zera_posicoes();
-	// printf("Leaving customer...%d\n", client_id);
+		// remove_cliente();
+	    printf("Leaving customer...%d\n", client_id);
 		exibe_mesa(client_id);
 
 		if(eating == 0)
@@ -211,6 +288,8 @@ void main() {
 	int i=0;
 	char c;
 	int customer_id[NO_OF_CUSTOMERS];
+
+	zera_posicoes();
 
 	printf("Insira o numero de cadeiras do Sushi Bar: ");
 	scanf(" %d", &no_of_chairs);
