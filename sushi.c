@@ -32,6 +32,14 @@ sem_t sem_ref;
 
 int posicao[NO_OF_CUSTOMERS];
 
+void zera_posicoes() {
+	int i;
+
+	for(i=0; i<NO_OF_CUSTOMERS; i++) {
+		posicao[i] = 0;
+	}
+}
+
 void exibe_mesa(int client_id) {
 	int i, j, encontrado = 0, sentando = 0;
 	// system("clear");
@@ -63,7 +71,6 @@ void exibe_mesa(int client_id) {
 		if(estado[j]==S)
 			sentando = 1;
 	}
-
 
 
 	if(!sentando) {
@@ -133,56 +140,11 @@ void entra_sushibar(int client_id) {
 	}
 }
 
-void come_sushi(int client_id) {
-	int i, j, k;      
-
-	if(eating == 1) {
-		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
-		for(i=0; i<61-n_espacos; i++) {
-			usleep(TEMPO);
-			exibe_mesa(client_id); 
-
-			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
-			for(j=i; j<70; j++) {
-				printf(" ");
-			}
-
-			printf("C\n");
-		}
-	}
-	else {
-		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
-		for(i=0; i<(71-n_espacos*eating-n_espacos); i++) {
-			usleep(TEMPO);
-			exibe_mesa(client_id); 
-
-			/* posicao inicial do primeiro */
-			for(j=(61-n_espacos); j<70; j++) {
-				printf(" ");
-			}
-			printf("C");
-
-			for(j=2; j<eating; j++) {
-				for(k=0; k<n_espacos; k++) {
-					printf(" ");
-				}
-				printf("C");
-			}
-			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
-			for(j=i; j<(70-eating*n_espacos); j++) {
-				printf(" ");
-			}
-
-			printf("C\n");
-		}
-	}
-}
 
 void* sushi_bar(void* arg) { 
 	int client_id = *(int *) arg;
 
 	while(1){
-
 		int i,n;
 
 		pthread_mutex_lock(&mutex);
@@ -229,6 +191,7 @@ void* sushi_bar(void* arg) {
 		eating-=1;
 		estado[client_id] = L;
 	/* CLIENTE SAINDO */
+		zera_posicoes();
 	// printf("Leaving customer...%d\n", client_id);
 		exibe_mesa(client_id);
 
