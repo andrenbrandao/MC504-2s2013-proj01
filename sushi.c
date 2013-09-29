@@ -103,7 +103,7 @@ void zera_posicoes() {
 
 void exibe_mesa(int client_id) {
 	int i, j, encontrado = 0, sentando = 0, comendo = 0, saindo = 0;
-	// system("clear");
+	system("clear");
 	printf("\n\n");
 	printf("                漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字          漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         \n");                                            
 	printf("         |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|\n");             
@@ -280,6 +280,7 @@ void* sushi_bar(void* arg) {
 			pthread_mutex_unlock(&mutex);
 
 	// printf("Eating customer...%d\n", client_id);
+		if(client_id != 2)
 		sleep(3);
 
 		pthread_mutex_lock(&mutex);
@@ -287,7 +288,7 @@ void* sushi_bar(void* arg) {
 		estado[client_id] = L;
 
 	/* CLIENTE SAINDO */
-		printf("Leaving customer...%d\n", client_id);
+		// printf("Leaving customer...%d\n", client_id);
 		exibe_mesa(client_id);
 		leaving++;
 		remove_cliente(client_id);
