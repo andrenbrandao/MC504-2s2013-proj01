@@ -18,7 +18,7 @@
 
 pthread_t customers[NO_OF_CUSTOMERS];
 
-int eating = 0, waiting = 0, sentando = 0;
+int eating = 0, waiting = 0, sentando = 0, leaving = 0;
 int no_of_chairs, no_of_customers, n_espacos;
 
 sem_t block;
@@ -33,11 +33,25 @@ sem_t sem_ref;
 int posicao[NO_OF_CUSTOMERS];
 
 void remove_cliente() {
-	int i;
+	int i, n_clientes = 0;
 
 	for(i=0; i<NO_OF_CUSTOMERS; i++) {
-		if(estado[i] == L)
-			posicao[i] = 0;
+		if(posicao[i] != 0)
+			n_clientes++;
+	}
+
+	if(n_clientes != no_of_chairs) {
+		for(i=0; i<NO_OF_CUSTOMERS; i++) {
+			if(estado[i] == L)
+				posicao[i] = 0;
+		}
+	}
+	else {
+		if(leaving == no_of_chairs) {
+			for(i=0; i<NO_OF_CUSTOMERS; i++) {
+				posicao[i] = 0;
+			}
+		}
 	}
 }
 
@@ -116,6 +130,22 @@ void exibe_mesa(int client_id) {
 		printf("\n");
 	}
 
+	if(saindo) {
+		printf("          ");
+		for(i=1; i<=45; i++){
+			for(j=0; j<NO_OF_CUSTOMERS; j++) {
+				if((posicao[j]-10) == i) {
+					printf("C");
+					encontrado = 1;
+				}
+			}
+			if(!encontrado)
+				printf(" ");
+			encontrado=0;
+		}
+		printf("\n");
+	}
+
 	if(comendo == no_of_chairs) {
 		usleep(30000);
 	}
@@ -171,58 +201,10 @@ void entra_sushibar(int client_id) {
 	}
 }
 
-void sai_sushibar(int client_id) {
-	int i, j, k;      
-
-	if(eating == 1) {
-		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
-		for(i=0; i<61-n_espacos; i++) {
-			usleep(TEMPO);
-			exibe_mesa(client_id); 
-
-			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
-			for(j=i; j<70; j++) {
-				printf(" ");
-			}
-
-			printf("C\n");
-		}
-		posicao[client_id] = j-i+1;
-		// printf("Posicao: %d\n", posicao[client_id]);
-	}
-	else {
-		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
-		for(i=0; i<(71-n_espacos*eating-n_espacos); i++) {
-			usleep(TEMPO);
-			exibe_mesa(client_id); 
-
-			/* posicao inicial do primeiro */
-			for(j=(61-n_espacos); j<70; j++) {
-				printf(" ");
-			}
-			printf("C");
-
-			for(j=2; j<eating; j++) {
-				for(k=0; k<n_espacos; k++) {
-					printf(" ");
-				}
-				printf("C");
-			}
-			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
-			for(j=i; j<(70-eating*n_espacos); j++) {
-				printf(" ");
-			}
-
-			printf("C\n");
-		}
-		posicao[client_id] = eating*(n_espacos+1) + 9;
-		// printf("Posicao: %d\n", posicao[client_id]);
-	}
-}
-
 
 void* sushi_bar(void* arg) { 
 	int client_id = *(int *) arg;
+	leaving = 0;
 
 	while(1){
 		int i,n;
@@ -268,9 +250,10 @@ void* sushi_bar(void* arg) {
 		estado[client_id] = L;
 		// exibe_mesa(client_id);
 	/* CLIENTE SAINDO */
-		// remove_cliente();
-	    printf("Leaving customer...%d\n", client_id);
+		printf("Leaving customer...%d\n", client_id);
 		exibe_mesa(client_id);
+		leaving++;
+		remove_cliente();
 
 		if(eating == 0)
 			must_wait = 0;
