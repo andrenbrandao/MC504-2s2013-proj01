@@ -12,8 +12,8 @@
 #define ANSI_COLOR_CYAN    "\033[22;36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-#define NO_OF_CUSTOMERS 30
-#define TEMPO 50000
+#define NO_OF_CUSTOMERS 20
+#define TEMPO 30000
 #define TAM_MESA 45
 
 pthread_t customers[NO_OF_CUSTOMERS];
@@ -43,27 +43,14 @@ void exibe_mesa() {
 	printf("\t |        "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"           |\n");   
 	printf("\t |_____________________________________________|\n");          
 
-
-  // for (i = 0; i < NO_OF_CUSTOMERS; i++)
-  //   switch (estado[i]) {
-  //   /* case W:  printf("W ");
-  //     break; */
-  //   case S:  printf(ANSI_COLOR_YELLOW "S " ANSI_COLOR_RESET);
-  //     break;
-  //   case E:  printf(ANSI_COLOR_CYAN "E " ANSI_COLOR_RESET);
-  //     break;
-  //   }
-  // printf("\n");
 }
 
-void entra_sushibar(int client_id) {
+void entra_sushibar() {
 	int i, j, k;      
-
-	printf("\t");
 
 	if(eating == 1) {
 		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
-		for(i=0; i<60-n_espacos; i++) {
+		for(i=0; i<61-n_espacos; i++) {
 			usleep(TEMPO);
 			exibe_mesa(); 
 
@@ -77,12 +64,12 @@ void entra_sushibar(int client_id) {
 	}
 	else {
 		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
-		for(i=0; i<(60-eating*n_espacos); i++) {
+		for(i=0; i<(71-n_espacos*eating-n_espacos); i++) {
 			usleep(TEMPO);
 			exibe_mesa(); 
 
 			/* posicao inicial do primeiro */
-			for(j=60-n_espacos; j<70; j++) {
+			for(j=(61-n_espacos); j<70; j++) {
 				printf(" ");
 			}
 			printf("X");
@@ -94,14 +81,58 @@ void entra_sushibar(int client_id) {
 				printf("X");
 			}
 			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
-			for(j=i; j<70-eating*n_espacos; j++) {
+			for(j=i; j<(70-eating*n_espacos); j++) {
 				printf(" ");
 			}
 
 			printf("X\n");
 		}
 	}
+}
 
+void come_sushi(int client_id) {
+	int i, j, k;      
+
+	if(eating == 1) {
+		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
+		for(i=0; i<61-n_espacos; i++) {
+			usleep(TEMPO);
+			exibe_mesa(); 
+
+			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
+			for(j=i; j<70; j++) {
+				printf(" ");
+			}
+
+			printf("X\n");
+		}
+	}
+	else {
+		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
+		for(i=0; i<(71-n_espacos*eating-n_espacos); i++) {
+			usleep(TEMPO);
+			exibe_mesa(); 
+
+			/* posicao inicial do primeiro */
+			for(j=(61-n_espacos); j<70; j++) {
+				printf(" ");
+			}
+			printf("X");
+
+			for(j=2; j<eating; j++) {
+				for(k=0; k<n_espacos; k++) {
+					printf(" ");
+				}
+				printf("X");
+			}
+			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
+			for(j=i; j<(70-eating*n_espacos); j++) {
+				printf(" ");
+			}
+
+			printf("X\n");
+		}
+	}
 }
 
 void* sushi_bar(void* arg) { 
@@ -132,7 +163,7 @@ void* sushi_bar(void* arg) {
 
 		estado[client_id] = S;
 	// printf("-----Sitting customer...%d\n", client_id);
-		entra_sushibar(client_id);
+		entra_sushibar();
 
 		if(eating == no_of_chairs) {
 			printf("TABLE FULL WITH CUSTOMERS...\n");
@@ -177,7 +208,7 @@ void main() {
 	printf("Insira o numero de cadeiras do Sushi Bar: ");
 	scanf(" %d", &no_of_chairs);
 
-	n_espacos = TAM_MESA/(no_of_chairs+1); 
+	n_espacos = TAM_MESA/(no_of_chairs+1)-1; 
 
 	for(i=0;i<NO_OF_CUSTOMERS;i++) {
 		customer_id[i]=i;
