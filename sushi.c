@@ -16,9 +16,15 @@
 #define TEMPO 30000
 #define TAM_MESA 45
 
+void todos_saem_sushibar(int client_id);
+void remove_cliente(int client_id);
+void zera_posicoes();
+void exibe_mesa(int client_id);
+void entra_sushibar(int client_id);
+
 pthread_t customers[NO_OF_CUSTOMERS];
 
-int eating = 0, waiting = 0, sentando = 0, leaving = 0;
+int eating = 0, waiting = 0, sentando = 0, leaving = 0, all_leaving = 0;
 int no_of_chairs, no_of_customers, n_espacos;
 
 sem_t block;
@@ -32,7 +38,25 @@ sem_t sem_ref;
 
 int posicao[NO_OF_CUSTOMERS];
 
-void remove_cliente() {
+void todos_saem_sushibar(int client_id) {
+	int i, j, encontrado=0;
+
+	printf("          ");
+	for(i=1; i<=45; i++){
+		exibe_mesa(client_id);
+		for(j=0; j<NO_OF_CUSTOMERS; j++) {
+			if((posicao[j]-10) == i) {
+				printf("A %d", posicao[j]);
+				encontrado = 1;
+			}
+		}
+		if(!encontrado)
+			printf(" OI");
+		encontrado=0;
+	}
+}
+
+void remove_cliente(int client_id) {
 	int i, n_clientes = 0;
 
 	for(i=0; i<NO_OF_CUSTOMERS; i++) {
@@ -48,6 +72,8 @@ void remove_cliente() {
 	}
 	else {
 		if(leaving == no_of_chairs) {
+			all_leaving = 1;
+			todos_saem_sushibar(client_id);
 			for(i=0; i<NO_OF_CUSTOMERS; i++) {
 				posicao[i] = 0;
 			}
@@ -130,7 +156,7 @@ void exibe_mesa(int client_id) {
 		printf("\n");
 	}
 
-	if(saindo) {
+	if(saindo && !all_leaving) {
 		printf("          ");
 		for(i=1; i<=45; i++){
 			for(j=0; j<NO_OF_CUSTOMERS; j++) {
@@ -253,7 +279,7 @@ void* sushi_bar(void* arg) {
 		printf("Leaving customer...%d\n", client_id);
 		exibe_mesa(client_id);
 		leaving++;
-		remove_cliente();
+		remove_cliente(client_id);
 
 		if(eating == 0)
 			must_wait = 0;
