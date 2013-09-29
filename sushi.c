@@ -30,9 +30,10 @@ typedef enum {W, S, E, L} estado_t;
 estado_t estado[NO_OF_CUSTOMERS];
 sem_t sem_ref;
 
-void exibe_mesa() {
-	int i;
+int posicao[NO_OF_CUSTOMERS];
 
+void exibe_mesa(int client_id) {
+	int i;
 	// system("clear");
 	printf("\n\n");
 	printf("\t        漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字          漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         \n");                                            
@@ -41,52 +42,80 @@ void exibe_mesa() {
 	printf("\t |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");
 	printf("\t |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");   
 	printf("\t |        "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"           |\n");   
-	printf("\t |_____________________________________________|\n");          
+	
+	// printf("\t |")
+	// for(i=0; i<45; i++) {
+	// 	if(estado[client_id] == E) {
+	// 		printf("@");
+	// 	}
+	// 	else {
+	// 		printf("_");
+	// 	}
+	// }
+	// printf("|\n");        
 
+	printf("\t |");
+
+	for(i=1; i<=45; i++){
+		if(i%n_espacos==0){
+			if(estado[client_id]==E)
+				printf("@");
+			else
+				printf("_");
+		}else{
+			printf("_");
+		}
+	}
+
+	printf("|\n");  
 }
 
-void entra_sushibar() {
+void entra_sushibar(int client_id) {
 	int i, j, k;      
 
 	if(eating == 1) {
 		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
 		for(i=0; i<61-n_espacos; i++) {
 			usleep(TEMPO);
-			exibe_mesa(); 
+			exibe_mesa(client_id); 
 
 			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
 			for(j=i; j<70; j++) {
 				printf(" ");
 			}
 
-			printf("X\n");
+			printf("C\n");
 		}
+		posicao[client_id] = j-i+1;
+		printf("Posicao: %d\n", posicao[client_id]);
 	}
 	else {
 		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
 		for(i=0; i<(71-n_espacos*eating-n_espacos); i++) {
 			usleep(TEMPO);
-			exibe_mesa(); 
+			exibe_mesa(client_id); 
 
 			/* posicao inicial do primeiro */
 			for(j=(61-n_espacos); j<70; j++) {
 				printf(" ");
 			}
-			printf("X");
+			printf("C");
 
 			for(j=2; j<eating; j++) {
 				for(k=0; k<n_espacos; k++) {
 					printf(" ");
 				}
-				printf("X");
+				printf("C");
 			}
 			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
 			for(j=i; j<(70-eating*n_espacos); j++) {
 				printf(" ");
 			}
 
-			printf("X\n");
+			printf("C\n");
 		}
+		posicao[client_id] = eating*(n_espacos+1) + 9;
+		printf("Posicao: %d\n", posicao[client_id]);
 	}
 }
 
@@ -97,40 +126,40 @@ void come_sushi(int client_id) {
 		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
 		for(i=0; i<61-n_espacos; i++) {
 			usleep(TEMPO);
-			exibe_mesa(); 
+			exibe_mesa(client_id); 
 
 			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
 			for(j=i; j<70; j++) {
 				printf(" ");
 			}
 
-			printf("X\n");
+			printf("C\n");
 		}
 	}
 	else {
 		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
 		for(i=0; i<(71-n_espacos*eating-n_espacos); i++) {
 			usleep(TEMPO);
-			exibe_mesa(); 
+			exibe_mesa(client_id); 
 
 			/* posicao inicial do primeiro */
 			for(j=(61-n_espacos); j<70; j++) {
 				printf(" ");
 			}
-			printf("X");
+			printf("C");
 
 			for(j=2; j<eating; j++) {
 				for(k=0; k<n_espacos; k++) {
 					printf(" ");
 				}
-				printf("X");
+				printf("C");
 			}
 			/* posicao inicial de entrada (quanto maior, mais longe sai da fila) */
 			for(j=i; j<(70-eating*n_espacos); j++) {
 				printf(" ");
 			}
 
-			printf("X\n");
+			printf("C\n");
 		}
 	}
 }
@@ -150,7 +179,7 @@ void* sushi_bar(void* arg) {
 		/* CLIENTE ESPERANDO */
 		// printf("waiting customer...%d\n", client_id);
 			estado[client_id] = W;
-			exibe_mesa();
+			exibe_mesa(client_id);
 
 		/* MUTEX LIBERADO */
 			pthread_mutex_unlock(&mutex);
@@ -163,14 +192,15 @@ void* sushi_bar(void* arg) {
 
 		estado[client_id] = S;
 	// printf("-----Sitting customer...%d\n", client_id);
-		entra_sushibar();
+		entra_sushibar(client_id);
 
 		if(eating == no_of_chairs) {
 			printf("TABLE FULL WITH CUSTOMERS...\n");
 		}
 
 		estado[client_id] = E;
-		// exibe_mesa();
+		exibe_mesa(client_id);
+		sleep(1);
 
 	/* MUTEX LIBERADO */
 		if(waiting && !must_wait) 
@@ -186,7 +216,7 @@ void* sushi_bar(void* arg) {
 		estado[client_id] = L;
 	/* CLIENTE SAINDO */
 	// printf("Leaving customer...%d\n", client_id);
-		exibe_mesa();
+		exibe_mesa(client_id);
 
 		if(eating == 0)
 			must_wait = 0;
