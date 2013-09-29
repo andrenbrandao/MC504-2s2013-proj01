@@ -33,38 +33,27 @@ sem_t sem_ref;
 int posicao[NO_OF_CUSTOMERS];
 
 void exibe_mesa(int client_id) {
-	int i;
+	int i, j, encontrado = 0;
 	// system("clear");
 	printf("\n\n");
-	printf("\t        漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字          漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         \n");                                            
-	printf("\t |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|\n");             
-	printf("\t |        "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"           |\n");   
-	printf("\t |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");
-	printf("\t |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");   
-	printf("\t |        "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"           |\n");   
-	
-	// printf("\t |")
-	// for(i=0; i<45; i++) {
-	// 	if(estado[client_id] == E) {
-	// 		printf("@");
-	// 	}
-	// 	else {
-	// 		printf("_");
-	// 	}
-	// }
-	// printf("|\n");        
-
-	printf("\t |");
+	printf("                漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字          漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         \n");                                            
+	printf("         |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|\n");             
+	printf("         |        "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"           |\n");   
+	printf("         |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");
+	printf("         |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");   
+	printf("         |        "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"           |\n");   
+	printf("         |");
 
 	for(i=1; i<=45; i++){
-		if(i%n_espacos==0){
-			if(estado[client_id]==E)
+		for(j=0; j<NO_OF_CUSTOMERS; j++) {
+			if(estado[j]==E && (posicao[j]-10) == i) {
 				printf("@");
-			else
-				printf("_");
-		}else{
-			printf("_");
+				encontrado = 1;
+			}
 		}
+		if(!encontrado)
+			printf("_");
+		encontrado=0;
 	}
 
 	printf("|\n");  
@@ -87,7 +76,7 @@ void entra_sushibar(int client_id) {
 			printf("C\n");
 		}
 		posicao[client_id] = j-i+1;
-		printf("Posicao: %d\n", posicao[client_id]);
+		// printf("Posicao: %d\n", posicao[client_id]);
 	}
 	else {
 		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
@@ -115,7 +104,7 @@ void entra_sushibar(int client_id) {
 			printf("C\n");
 		}
 		posicao[client_id] = eating*(n_espacos+1) + 9;
-		printf("Posicao: %d\n", posicao[client_id]);
+		// printf("Posicao: %d\n", posicao[client_id]);
 	}
 }
 
@@ -200,7 +189,7 @@ void* sushi_bar(void* arg) {
 
 		estado[client_id] = E;
 		exibe_mesa(client_id);
-		sleep(1);
+
 
 	/* MUTEX LIBERADO */
 		if(waiting && !must_wait) 
@@ -253,8 +242,9 @@ void main() {
 
 	sem_init(&sem_ref, 0, 1);
 
-	for(i=0;i<NO_OF_CUSTOMERS;i++)
+	for(i=0;i<NO_OF_CUSTOMERS;i++) {
 		pthread_create(&customers[i],0,sushi_bar,&customer_id[i]);
+	}
 
   /* use system call to make terminal send all keystrokes directly to stdin */
 //   system ("/bin/stty raw");
