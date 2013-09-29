@@ -18,7 +18,7 @@
 
 pthread_t customers[NO_OF_CUSTOMERS];
 
-int eating = 0, waiting = 0;
+int eating = 0, waiting = 0, sentando = 0;
 int no_of_chairs, no_of_customers, n_espacos;
 
 sem_t block;
@@ -33,7 +33,7 @@ sem_t sem_ref;
 int posicao[NO_OF_CUSTOMERS];
 
 void exibe_mesa(int client_id) {
-	int i, j, encontrado = 0;
+	int i, j, encontrado = 0, sentando = 0;
 	// system("clear");
 	printf("\n\n");
 	printf("                漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字          漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         \n");                                            
@@ -47,7 +47,7 @@ void exibe_mesa(int client_id) {
 	for(i=1; i<=45; i++){
 		for(j=0; j<NO_OF_CUSTOMERS; j++) {
 			if(estado[j]==E && (posicao[j]-10) == i) {
-				printf("@");
+				printf(ANSI_COLOR_GREEN"@"ANSI_COLOR_RESET);
 				encontrado = 1;
 			}
 		}
@@ -56,7 +56,32 @@ void exibe_mesa(int client_id) {
 		encontrado=0;
 	}
 
-	printf("|\n");  
+	printf("|\n");
+
+		/* checa se alguem esta sentando */
+	for(j=0; j<NO_OF_CUSTOMERS; j++) {
+		if(estado[j]==S)
+			sentando = 1;
+	}
+
+
+
+	if(!sentando) {
+		printf("          ");
+		for(i=1; i<=45; i++){
+			for(j=0; j<NO_OF_CUSTOMERS; j++) {
+				if((posicao[j]-10) == i) {
+					printf("C");
+					encontrado = 1;
+				}
+			}
+			if(!encontrado)
+				printf(" ");
+			encontrado=0;
+		}
+		printf("\n");
+	}
+
 }
 
 void entra_sushibar(int client_id) {
