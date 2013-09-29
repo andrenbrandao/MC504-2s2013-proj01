@@ -111,28 +111,44 @@ void exibe_mesa(int client_id) {
 	printf("                          ‾‾‾‾‾‾‾‾‾‾‾\n");                                        
 	printf("\n");
 	printf("                漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字          漢"ANSI_COLOR_RED"o"ANSI_COLOR_RESET"字         \n");                                            
-	printf("         |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|\n");             
-	printf("         |        "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"           |\n");   
-	printf("         |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");
+	printf("         |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|");
 
+	printf("   CLIENTES ESPERANDO\n");
 
+	printf("         |        "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"_______"ANSI_COLOR_RESET"           |");   
+	
+	printf("        |‾‾‾‾‾‾|\n");
 
-	printf("         |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |\n");   
-	printf("         |        "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"           |");   
+	printf("         |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |");
 
+	printf("        |  %d  ", waiting);
+	if(waiting < 10)
+		printf(" ");
+	printf("|\n");
+
+	printf("         |     "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"      "ANSI_COLOR_YELLOW"-<|"ANSI_COLOR_GREEN"@@@@@@@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_GREEN"@"ANSI_COLOR_YELLOW"|"ANSI_COLOR_RESET"        |");  
+
+	printf("        |______|\n", waiting);
+
+	printf("         |        "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"            "ANSI_COLOR_YELLOW"‾‾‾‾‾‾‾"ANSI_COLOR_RESET"           |\n");   
+
+	/* checa quantidade comendo */
 	for(j=0; j<NO_OF_CUSTOMERS; j++) {
 		if(estado[j]==E)
 			comendo += 1;
 	}
 
-	if(comendo == no_of_chairs) {
-		printf("     :: MESA CHEIA ::\n");
+	/* checa se alguem esta sentando */
+	for(j=0; j<NO_OF_CUSTOMERS; j++) {
+		if(estado[j]==S)
+			sentando = 1;
 	}
-	else if(all_leaving) {
-		printf("     <== CLIENTES SAINDO\n");	
+
+	/* checa se alguem esta saindo */
+	for(j=0; j<NO_OF_CUSTOMERS; j++) {
+		if(estado[j]==L)
+			saindo = 1;
 	}
-	else
-		printf("\n");
 
 	printf("         |");
 
@@ -148,19 +164,20 @@ void exibe_mesa(int client_id) {
 		encontrado=0;
 	}
 
-	printf("|\n");
+	printf("|");
 
-		/* checa se alguem esta sentando */
-	for(j=0; j<NO_OF_CUSTOMERS; j++) {
-		if(estado[j]==S)
-			sentando = 1;
-	}
 
-	/* checa se alguem esta saindo */
-	for(j=0; j<NO_OF_CUSTOMERS; j++) {
-		if(estado[j]==L)
-			saindo = 1;
+	if(comendo == no_of_chairs) {
+		printf("    :: MESA CHEIA ::\n");
 	}
+	else if(all_leaving) {
+		printf("  <== CLIENTES SAINDO\n");	
+	}
+	else if(sentando) {
+		printf("  [CLIENTES ENTRANDO]\n");	
+	}
+	else
+		printf("\n");
 
 
 	if(!sentando && !saindo) {
@@ -326,8 +343,14 @@ void main() {
 	zera_posicoes();
 	srand ( time(NULL) );
 
-	printf("Insira o numero de cadeiras do Sushi Bar: ");
+	printf("Insira o numero de cadeiras do Sushi Bar (1 a 20): ");
 	scanf(" %d", &no_of_chairs);
+
+	while(no_of_chairs < 1 || no_of_chairs > 20) {
+		printf("Insira um valor válido para o numero de cadeiras do Sushi Bar (1 a 20): ");
+		scanf(" %d", &no_of_chairs);
+	}
+
 
 	n_espacos = TAM_MESA/(no_of_chairs+1)-1; 
 
