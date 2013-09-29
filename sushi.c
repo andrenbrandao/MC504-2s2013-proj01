@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define ANSI_COLOR_RED     "\033[22;31m"
 #define ANSI_COLOR_GREEN   "\033[22;32m"
@@ -54,7 +55,7 @@ void todos_saem_sushibar(int client_id) {
 				if((posicao[j]-10) == i) {
 					printf("S");
 					encontrado = 1;
-					 if(k>=10)
+					if(k>=10)
 						posicao[j]--; 	/* decrementa a posicao do cliente */
 				}
 		}
@@ -244,7 +245,7 @@ void* sushi_bar(void* arg) {
 	int client_id = *(int *) arg;
 
 	while(1){
-		int i,n;
+		int i, n;
 
 		pthread_mutex_lock(&mutex);
 
@@ -280,8 +281,8 @@ void* sushi_bar(void* arg) {
 			pthread_mutex_unlock(&mutex);
 
 	// printf("Eating customer...%d\n", client_id);
-		if(client_id != 2)
-		sleep(3);
+
+		sleep(rand() % 10 + 1);
 
 		pthread_mutex_lock(&mutex);
 		eating-=1;
@@ -313,6 +314,7 @@ void main() {
 	int customer_id[NO_OF_CUSTOMERS];
 
 	zera_posicoes();
+	srand ( time(NULL) );
 
 	printf("Insira o numero de cadeiras do Sushi Bar: ");
 	scanf(" %d", &no_of_chairs);
