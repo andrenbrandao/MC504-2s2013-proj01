@@ -128,8 +128,12 @@ void exibe_mesa(int client_id) {
 	if(comendo == no_of_chairs) {
 		printf("     :: MESA CHEIA ::\n");
 	}
+	else if(all_leaving) {
+		printf("     <== CLIENTES SAINDO\n");	
+	}
 	else
 		printf("\n");
+
 	printf("         |");
 
 	for(i=1; i<=45; i++){
