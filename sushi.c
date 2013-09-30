@@ -26,13 +26,13 @@
 
 void todos_saem_sushibar(int client_id);
 void remove_cliente(int client_id);
-void zera_posicoes();
+void zera_posicoes(); /*zera vetor de posicao x dos clientes/sushis*/
 void exibe_mesa(int client_id);
 void entra_sushibar(int client_id);
 
 pthread_t customers[NO_OF_CUSTOMERS];
 
-int eating = 0, waiting = 0, sentando = 0, leaving = 0, all_leaving = 0;
+int eating = 0, waiting = 0, sentando = 0, leaving = 0, all_leaving = 0; /*flags de estado*/
 int no_of_chairs, no_of_customers, n_espacos;
 
 sem_t block;
@@ -44,7 +44,7 @@ int must_wait = 0;
 typedef enum {W, S, E, L, O} estado_t;
 estado_t estado[NO_OF_CUSTOMERS];
 
-int posicao[NO_OF_CUSTOMERS];
+int posicao[NO_OF_CUSTOMERS]; /*vetor de posicao x dos clientes/sushis*/
 
 
 void* sushi_bar(void* arg) { 
@@ -157,6 +157,7 @@ int main() {
 	return 0;
 } 
 
+/*funcao para clientes sairem do sushibar juntos*/
 void todos_saem_sushibar(int client_id) {
 	int i, j, k, p, encontrado=0;
 
@@ -225,6 +226,7 @@ void zera_posicoes() {
 void exibe_mesa(int client_id) {
 	int i, j, encontrado = 0, sentando = 0, comendo = 0, saindo = 0;
 	system("clear");
+	/*imprime mesa do sushibar*/
 	printf("\n\n");
 	printf("                          ___________\n");
 	printf("                         | SUSHI BAR |\n"); 
@@ -271,7 +273,8 @@ void exibe_mesa(int client_id) {
 	}
 
 	printf("         |");
-
+	
+	/*imprime sushi caso cliente esteja comendo*/
 	for(i=1; i<=45; i++){
 		for(j=0; j<NO_OF_CUSTOMERS; j++) {
 			if(estado[j]==E && (posicao[j]-10) == i) {
@@ -286,7 +289,7 @@ void exibe_mesa(int client_id) {
 
 	printf("|");
 
-
+	/*imprime estados da execucao do programa*/
 	if(comendo == no_of_chairs) {
 		printf("    :: MESA CHEIA ::\n");
 	}
@@ -299,7 +302,7 @@ void exibe_mesa(int client_id) {
 	else
 		printf("\n");
 
-
+	/*imprime clientes que estao comendo*/
 	if(!sentando && !saindo) {
 		printf("          ");
 		for(i=1; i<=45; i++){
@@ -338,6 +341,7 @@ void exibe_mesa(int client_id) {
 
 }
 
+/*imprime clientes entrando*/
 void entra_sushibar(int client_id) {
 	int i, j, k;      
 
