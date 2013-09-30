@@ -1,3 +1,10 @@
+/*SUSHI BAR
+**
+** Andre Nogueira Brandao - RA116130
+** Andre Seiji Tamanaha - RA116134
+**
+*/
+
 #include <semaphore.h>
 #include <pthread.h>
 #include <stdio.h>
