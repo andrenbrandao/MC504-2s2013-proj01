@@ -36,9 +36,119 @@ int must_wait = 0;
 /* Waiting, Sitting, Eating, Leaving, Out */
 typedef enum {W, S, E, L, O} estado_t;
 estado_t estado[NO_OF_CUSTOMERS];
-sem_t sem_ref;
 
 int posicao[NO_OF_CUSTOMERS];
+
+
+void* sushi_bar(void* arg) { 
+	int client_id = *(int *) arg;
+
+	while(1){
+		int i, n;
+
+		pthread_mutex_lock(&mutex);
+
+		if(must_wait) { 
+			waiting+=1;
+
+			/* CLIENTE ESPERANDO */
+			estado[client_id] = W;
+			exibe_mesa(client_id);
+
+			/* MUTEX LIBERADO */
+			pthread_mutex_unlock(&mutex);
+
+			sem_wait(&block);
+			waiting -= 1;
+		} 
+		eating+=1;
+		must_wait = (eating == no_of_chairs);
+
+		/* muda o estado do cliente para SITTING */
+		estado[client_id] = S;
+		entra_sushibar(client_id);
+
+		/* Muda estado do cliente para COMENDO */
+		estado[client_id] = E;
+		exibe_mesa(client_id);
+
+
+		/* MUTEX LIBERADO */
+		if(waiting && !must_wait) 
+			sem_post(&block);
+		else
+			pthread_mutex_unlock(&mutex);
+
+		/* Sleep randomico para cada thread comer */
+		sleep(rand() % 10 + 1);
+
+		pthread_mutex_lock(&mutex);
+		eating-=1;
+		estado[client_id] = L;
+
+		/* CLIENTE SAINDO */
+		exibe_mesa(client_id);
+		leaving++;
+		remove_cliente(client_id);
+
+		if(eating == 0)
+			must_wait = 0;
+
+		/* Muda o estado do cliente para OUT (saiu do Sushi Bar) */
+		estado[client_id] = O;
+		if(waiting && !must_wait)
+			sem_post(&block);
+		else
+			pthread_mutex_unlock(&mutex);
+
+		/* cliente espera 3s fora do bar */
+		sleep(3);
+	} 
+} 
+
+int main() { 
+	int i=0;
+	char c;
+	int customer_id[NO_OF_CUSTOMERS];
+
+	zera_posicoes();
+	srand ( time(NULL) );
+
+	printf("Insira o numero de cadeiras do Sushi Bar (1 a 20): ");
+	scanf(" %d", &no_of_chairs);
+
+	while(no_of_chairs < 1 || no_of_chairs > 20) {
+		printf("Insira um valor válido para o numero de cadeiras do Sushi Bar (1 a 20): ");
+		scanf(" %d", &no_of_chairs);
+	}
+
+	/* calcula o numero de espacos entre cada cliente */
+	n_espacos = TAM_MESA/(no_of_chairs+1)-1; 
+
+	/* inicia o id dos clientes e os estados como WAITING */
+	for(i=0;i<NO_OF_CUSTOMERS;i++) {
+		customer_id[i]=i;
+		estado[i] = W;
+	}
+
+  	/* inicia o mutex */
+	pthread_mutex_init(&mutex,0);
+
+  	/* inicia o semaphore block */
+	sem_init(&block,0,0);
+
+	/* cria as Threads */
+	for(i=0;i<NO_OF_CUSTOMERS;i++) {
+		pthread_create(&customers[i],0,sushi_bar,&customer_id[i]);
+	}
+
+	/* tentativa de sair do programa com a tecla 'q' - ainda nao sucedida */
+	while(c != 'q') {
+		c = getchar();
+	};
+
+	return 0;
+} 
 
 void todos_saem_sushibar(int client_id) {
 	int i, j, k, p, encontrado=0;
@@ -47,24 +157,27 @@ void todos_saem_sushibar(int client_id) {
 		usleep(TEMPO);
 		exibe_mesa(client_id);
 
-		for(p=k; p<10; p++)
+		for(p=k; p<10; p++) {
 			printf(" ");
+		}
 
 		for(i=1; i<=TAM_MESA; i++){
 			for(j=0; j<NO_OF_CUSTOMERS; j++) {
 				if((posicao[j]-10) == i) {
 					printf("S");
 					encontrado = 1;
-					if(k>=10)
+					if(k>=10) {
 						posicao[j]--; 	/* decrementa a posicao do cliente */
+					}
 				}
+			}
+			if(!encontrado) {
+				printf(" ");
+			}
+			encontrado=0;
 		}
-		if(!encontrado)
-			printf(" ");
-		encontrado=0;
+		printf("\n");
 	}
-	printf("\n");
-}
 }
 
 void remove_cliente(int client_id) {
@@ -235,7 +348,6 @@ void entra_sushibar(int client_id) {
 			printf("C\n");
 		}
 		posicao[client_id] = j-i+1;
-		// printf("Posicao: %d\n", posicao[client_id]);
 	}
 	else {
 		/* posicao final do cliente (quanto maior, mais pra esquerda anda) */
@@ -263,119 +375,5 @@ void entra_sushibar(int client_id) {
 			printf("C\n");
 		}
 		posicao[client_id] = eating*(n_espacos+1) + 9;
-		// printf("Posicao: %d\n", posicao[client_id]);
 	}
 }
-
-
-void* sushi_bar(void* arg) { 
-	int client_id = *(int *) arg;
-
-	while(1){
-		int i, n;
-
-		pthread_mutex_lock(&mutex);
-
-		if(must_wait) { 
-			waiting+=1;
-
-		/* CLIENTE ESPERANDO */
-		// printf("waiting customer...%d\n", client_id);
-			estado[client_id] = W;
-			exibe_mesa(client_id);
-
-		/* MUTEX LIBERADO */
-			pthread_mutex_unlock(&mutex);
-
-			sem_wait(&block);
-			waiting -= 1;
-		} 
-		eating+=1;
-		must_wait = (eating == no_of_chairs);
-
-		estado[client_id] = S;
-	// printf("-----Sitting customer...%d\n", client_id);
-		entra_sushibar(client_id);
-
-		estado[client_id] = E;
-		exibe_mesa(client_id);
-
-
-	/* MUTEX LIBERADO */
-		if(waiting && !must_wait) 
-			sem_post(&block);
-		else
-			pthread_mutex_unlock(&mutex);
-
-	// printf("Eating customer...%d\n", client_id);
-
-		sleep(rand() % 10 + 1);
-
-		pthread_mutex_lock(&mutex);
-		eating-=1;
-		estado[client_id] = L;
-
-	/* CLIENTE SAINDO */
-		// printf("Leaving customer...%d\n", client_id);
-		exibe_mesa(client_id);
-		leaving++;
-		remove_cliente(client_id);
-
-		if(eating == 0)
-			must_wait = 0;
-
-		estado[client_id] = O;
-		if(waiting && !must_wait)
-			sem_post(&block);
-		else
-			pthread_mutex_unlock(&mutex);
-
-
-		sleep(3);
-	} 
-} 
-
-void main() { 
-	int i=0;
-	char c;
-	int customer_id[NO_OF_CUSTOMERS];
-
-	zera_posicoes();
-	srand ( time(NULL) );
-
-	printf("Insira o numero de cadeiras do Sushi Bar (1 a 20): ");
-	scanf(" %d", &no_of_chairs);
-
-	while(no_of_chairs < 1 || no_of_chairs > 20) {
-		printf("Insira um valor válido para o numero de cadeiras do Sushi Bar (1 a 20): ");
-		scanf(" %d", &no_of_chairs);
-	}
-
-
-	n_espacos = TAM_MESA/(no_of_chairs+1)-1; 
-
-	for(i=0;i<NO_OF_CUSTOMERS;i++) {
-		customer_id[i]=i;
-		estado[i] = W;
-	}
-
-  //mutex=make_semaphore(1);
-	pthread_mutex_init(&mutex,0);
-
-  //block=make_semaphore(0);
-	sem_init(&block,0,0);
-
-	sem_init(&sem_ref, 0, 1);
-
-	for(i=0;i<NO_OF_CUSTOMERS;i++) {
-		pthread_create(&customers[i],0,sushi_bar,&customer_id[i]);
-	}
-
-  /* use system call to make terminal send all keystrokes directly to stdin */
-//   system ("/bin/stty raw");
-	while(c != 'q') {
-		c = getchar();
-	};
-  /* use system call to set terminal behaviour to more normal behaviour */
-//   system ("/bin/stty cooked");
-} 
